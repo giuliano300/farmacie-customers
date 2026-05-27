@@ -1,0 +1,30 @@
+export interface MagentoConfig {
+  baseUrl: string;
+  token: string;
+  ftpHost: string;
+  ftpUser: string;
+  ftpPassword: string;
+  ftpImportPath: string;
+  magentoRootPath: string;
+  cronDelayMilliseconds: number;
+  websiteId: number;
+  attributeSetId: number;
+}
+
+export interface customers {
+  id: string;
+  code: string;
+  name: string;
+  magentoStoreCode: string;
+  heronFolder: string;
+  heronFtpFolder: string;
+  heronFtp: string;
+  heronUsername: string;
+  heronPassword: string;
+  cron: string;
+  active: boolean;
+  msi: boolean;
+  ivaInclusive: boolean;
+  createdAt: Date;
+  magento: MagentoConfig;
+}
