@@ -3,7 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatMenuModule } from '@angular/material/menu';
-import { MatPaginatorModule, MatPaginator } from '@angular/material/paginator';
+import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -36,6 +36,9 @@ export class HistoryComponent {
     customerId: string | undefined = undefined;
     customer: customerWithBatchStatus | undefined;
     firstLoading: boolean = true;
+    totalCount: number = 0;
+    pageIndex: number = 0;
+    pageSize: number = 10;
 
     user: customers | null = null;
 
@@ -58,21 +61,34 @@ export class HistoryComponent {
     }
 
     get(){
-      this.firstLoading = true;
       const user = this.sessionService.getUser();
-        if (user) 
-            this.user = user;
+        if (!user) {
+            this.router.navigate(['/authentication']);
+            return;
+        }
 
-        this.customerId = user!.id;
+        this.user = user;
+        this.customerId = user.id;
+        this.pageIndex = 0;
 
         this.customerService.getCustomer(this.customerId).subscribe((c: customerWithBatchStatus)=>{
             this.customer = c;
         })
 
+        this.loadHistory();
+   }
 
-        this.batchesService.history(this.customerId!).subscribe((data: CompleteBatchesItem[]) => {
-            this.batch = data.map(b => ({
-                ...b, 
+  loadHistory(){
+    if (!this.customerId) return;
+
+    this.firstLoading = true;
+
+        this.batchesService.history(this.customerId, this.pageIndex, this.pageSize).subscribe((data) => {
+            this.totalCount = data.totalCount;
+            this.pageIndex = data.pageIndex;
+            this.pageSize = data.pageSize;
+            this.batch = data.items.map(b => ({
+                ...b,
                 values: '',
                 action: {
                     update: 'ri-pencil-line',
@@ -82,10 +98,23 @@ export class HistoryComponent {
 
             //console.log(JSON.stringify(this.batch));
             this.dataSource = new MatTableDataSource<CompleteBatchesItem>(this.batch);
-            this.dataSource.paginator = this.paginator;
             this.firstLoading = false;
         });
-   }
+  }
+
+  onPageChange(event: PageEvent){
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.loadHistory();
+  }
+
+  reloadCurrentPage(){
+    if (this.batch.length === 1 && this.pageIndex > 0) {
+      this.pageIndex--;
+    }
+
+    this.loadHistory();
+  }
 
   DeleteItem(item:CompleteBatchesItem){
 
@@ -98,7 +127,7 @@ export class HistoryComponent {
       {
         this.firstLoading = true;
         this.batchesService.delete(item.batch.batchId!).subscribe(()=>{
-          this.get();
+          this.reloadCurrentPage();
         });
       } 
       else 
