@@ -31,6 +31,11 @@
                         </span>
                     </a>
 
+                    <a routerLink="/batches" class="sidebar-menu-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                        <i-feather name="activity"></i-feather>
+                        <span class="title">Batch</span>
+                    </a>
+
                     <a routerLink="/customer/products-to-exclude" class="sidebar-menu-link" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
                         <i-feather name="x"></i-feather>
                         <span class="title">
@@ -60,7 +65,7 @@
                     </a>
 
                     <a class="sidebar-menu-link" (click)="logout()" href="#">
-                        <i-feather name="home"></i-feather>
+                        <i-feather name="log-out"></i-feather>
                         <span class="title">Logout</span>
                     </a>
                 </mat-accordion>

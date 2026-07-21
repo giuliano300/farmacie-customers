@@ -15,10 +15,8 @@ export class AuthCustomerService {
 
   constructor(private router: Router, private sessionService: SessionService, private customerService: CustomersService) {
     // Recupera l'utente dal sessionStorage se presente
-    const storedCustomer = sessionStorage.getItem('customer');
-    if (storedCustomer) {
-      this.customerSubject.next(JSON.parse(storedCustomer)); // Invia i dati customer iniziali
-    }
+    const storedCustomer = this.sessionService.getUser();
+    if (storedCustomer) this.customerSubject.next(storedCustomer);
   }
 
   login(customer: customers): void {
